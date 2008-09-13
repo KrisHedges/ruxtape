@@ -25,6 +25,10 @@ module Ruxtape::Models
       def setup(openid)
         File.open(CONFIG_FILE, "w") { |f| YAML.dump({:openid => openid}, f) }
       end
+      def write(configs)
+        values = self.values
+        File.open(CONFIG_FILE, "w") { |f| YAML.dump(values.merge(configs), f) }
+      end
       def admin?(ident)
         if setup?
           values[:openid] == ident
@@ -180,12 +184,22 @@ module Ruxtape::Controllers
 
   class UpdateConfig < R '/admin/update_config'
     def post
+      configs = { :openid => input.config_openid, :google => input.config_google }
+      Config.write(configs)
       redirect R(Admin)
     end
   end
 
   class Setup < R '/setup'
     def get; Config.setup? ? render(:setup) : redirect(R(Index)); end
+    def post
+      unless Config.setup?
+        Config.setup(:openid => input.openid_identifier, :google => "")
+        redirect R(Login, :signed => sign)
+      else
+        redirect R(Index)
+      end
+    end
   end
 
   class Upload < R '/admin/upload'
@@ -250,6 +264,11 @@ module Ruxtape::Views
         meta(:content => 'noindex, nofollow', :name => "robots")
         %w(jquery.js ui.core.js ui.sortable.js ruxtape.js).each do |lib|
           script(:type => 'text/javascript', :src => "/assets/#{lib}")
+          script(:type => 'text/javascript', :src => '/assets/soundmanager/soundmanager2-nodebug-jsmin.js')
+          script :type  => 'text/javascript' do "soundManager.url = '../../assets/soundmanager';"  end
+          script :type  => 'text/javascript' do
+            "var PP_CONFIG = {flashVersion: 9,usePeakData: true,useWaveformData: false,useEQData: false,useFavIcon: false}"        
+          end
         end
       end
       body do
@@ -270,12 +289,12 @@ module Ruxtape::Views
             @state.identity ? a("Logout", :href => R(Logout)) : a("Login", :href => "/setup")
           end
         end
+        _google_analytics unless (Ruxtape::Models::Config.values[:google] == (nil || "") )
       end
     end
   end
 
-  def index
-    script(:type => 'text/javascript', :src => '/assets/soundmanager/soundmanager2.js')
+  def index    
     # The order of the following js calls is apparently quite critical to proper behaviour.
     script :type  => 'text/javascript' do
       "var PP_CONFIG = {flashVersion: 9,usePeakData: true,useWaveformData: false,useEQData: false,useFavIcon: false}"
@@ -295,12 +314,15 @@ module Ruxtape::Views
       p "Type in your OpenID address below to get started."
       form({ :method => 'get', :action => R(Login, :signed => sign)}) do
         input :type => "text", :name => "openid_identifier"
-        input :type => "submit", :value => "Login"
+        button :name  => "submit", :class => 'darkBtn' do span 'Login' end
       end
     end
   end
 
   def admin
+    link(:rel => 'stylesheet', :type => 'text/css',
+         :href => '/assets/inline-player.css', :media => 'screen' )
+    script(:type => 'text/javascript', :src => '/assets/soundmanager/inline-player.js')
     div.content! do 
       p.login { text "You are authenticated as #{@state.identity}." }
       h1 "Switch Up Your Tape"
@@ -311,27 +333,26 @@ module Ruxtape::Views
           div.graybox do
             form({ :method => 'post', :enctype => "multipart/form-data", 
                    :action => R(Upload, :signed => sign)}) do 
-              input :type => "file", :name => "file", :value  => "Browse"
-              input :type => "submit", :value => "Upload"
+              p.center do input :type => "file", :name => "file", :value  => "Browse" end
+              p.center do button :name  => "submit", :class => 'darkBtn' do span 'Upload' end end
             end
           end
-          h2 "Configurations"
+          h2 "Configuration"
           div.graybox do 
             form({ :method => 'post', :action => R(UpdateConfig, :signed => sign)}) do 
               @configs.each do |key, value|
-                label "#{key.to_s.capitalize}", :for => "config_#{key}"
-                input :type => "text", :name => "config_#{key}", :value => value
-              end
-              input :type => "submit", :value => "Save"
+                p.center do label "#{key.to_s.capitalize}", :for => "config_#{key}"
+                input :type => "text", :name => "config_#{key}", :value => value end
+              end          
+              p.center do button :name  => "submit", :class => 'darkBtn' do span 'Save' end  end
             end
           end
           div.warning do
-            h2 "Restart"
+            h2 "Reset"
             div.graybox do
-              p "This will delete all your songs."
-              form({ :method => 'post', :action => R(Restart, :signed => sign)}) do 
-#             input :type => "image", :src  => "/assets/images/ruxtape_logo.jpg", :value => "Restart", :name  => "submit"
-              input :type => "submit", :value => "Restart", :name  => "submit"
+              p "This will reset your ruxtape by deleting all your songs and the admin account taking you back to the original setup."
+              form({ :method => 'post', :action => R(Restart, :signed => sign)}) do
+              p.center do button :name  => "submit", :class => 'redBtn' do span 'Reset' end  end 
               end
             end
           end
@@ -352,18 +373,18 @@ module Ruxtape::Views
   def _song_admin(song)
     div.song do 
       div.info do 
-        h3 "#{song.artist} - #{song.title}"
+        h3 do a("#{song.artist} - #{song.title}", :href=> song.url_path, :class => 'sm2_link') end
         div.edit_song_controls do
           span.edit_song_button {"Edit Song"}
           form.delete({ :method => 'post', :action => R(DeleteSong, :signed => sign)}) do 
             input :type => "hidden", :name => "song_filename", :value => song.filename
-            input :type => "submit", :value => "Delete"
+            button :name  => "submit", :class => 'redBtn' do span 'Delete' end 
           end
         end  
       end
       div.edit_song do
         div.edit_song_form do
-          h6 "file - (#{song.filename})" 
+          h6 "file - (#{song.filename})"     
           form({ :method => 'post', :action => R(UpdateSong, :signed => sign)}) do 
             label 'Artist ', :for => 'song_artist'
             input :type => "text", :name => "song_artist", :value => song.artist
@@ -389,6 +410,15 @@ module Ruxtape::Views
     end
     div(:id =>'spectrum-container', :class => 'spectrum-container') do
       div(:class => 'spectrum-box') { div.spectrum {""} }
+    end
+  end
+
+  def _google_analytics
+    script :type => 'text/javascript' do 
+      "var gaJsHost = ((\"https:\" == document.location.protocol) ? \"https://ssl.\" : \"http://www.\"); document.write(unescape(\"%3Cscript src='\" + gaJsHost + \"google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E\"));"
+    end
+    script :type => 'text/javascript' do 
+      "var pageTracker = _gat._getTracker(\"#{Ruxtape::Models::Config.values[:google]}\"); pageTracker._trackPageview();"
     end
   end
 end
