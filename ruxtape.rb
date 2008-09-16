@@ -29,7 +29,7 @@ module Ruxtape::Models
         values = self.values
         File.open(CONFIG_FILE, "w") { |f| YAML.dump(values.merge(configs), f) }
       end
-      def writable?; File.writable?(CONFIG_FILE) || File.writable?(File.dirname(CONFIG_FILE); end
+      def writable?; File.writable?(CONFIG_FILE) || File.writable?(File.dirname(CONFIG_FILE)); end
       def admin?(ident)
         if setup?
           values[:openid] == ident
