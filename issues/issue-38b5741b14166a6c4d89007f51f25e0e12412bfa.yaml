@@ -1,0 +1,18 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: Default Config File
+desc: Restructure config class to use a default file. Currently when there is no file there are a whole bunch of issues with analytics and stuff
+type: :bugfix
+component: Ruxtape
+release: 
+reporter: jxa
+status: :unstarted
+disposition: 
+creation_time: 2008-09-17 03:37:39.099539 Z
+references: []
+
+id: 38b5741b14166a6c4d89007f51f25e0e12412bfa
+log_events: 
+- - 2008-09-17 03:37:41.723903 Z
+  - ch0wda <joshua.schairbaum@gmail.com>
+  - created
+  - ""
