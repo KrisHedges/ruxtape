@@ -268,8 +268,9 @@ module Ruxtape::Views
           script(:type => 'text/javascript', :src => '/assets/soundmanager/soundmanager2-nodebug-jsmin.js')
           script :type  => 'text/javascript' do "soundManager.url = '../../assets/soundmanager';"  end
           script :type  => 'text/javascript' do
-            "var PP_CONFIG = {flashVersion: 9,usePeakData: true,useWaveformData: false,useEQData: false,useFavIcon: false}"        
+            "var PP_CONFIG = {flashVersion: 9,usePeakData: true,useWaveformData: false,useEQData: false,useFavIcon: false}"
           end
+          script(:type  => 'text/javascript', :src  => "/assets/MultiFile.js")
         end
       end
       body do
@@ -344,9 +345,10 @@ module Ruxtape::Views
         div.admin_left do
           h2 "Upload a New Jam"
           div.graybox do
+            h4 "Queue"
             form({ :method => 'post', :enctype => "multipart/form-data", 
                    :action => R(Upload, :signed => sign)}) do 
-              p.center do input :type => "file", :name => "file", :value  => "Browse" end
+              p.center do input :type => "file", :class  => "multi", :accept  => "mp3", :name => "file", :value  => "Add" end
               p.center do button :name  => "submit", :class => 'darkBtn' do span 'Upload' end end
             end
           end

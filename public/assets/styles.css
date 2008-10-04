@@ -31,18 +31,21 @@ input { padding:3px; margin:0px 0 0 0;}
 
 ul.songs, ul.sorter { list-style-image:none; list-style-position:outside; list-style-type:none; margin: 0; padding: 0;}
 ul.sorter { cursor: move; }
-li.song, li.sortable {position:relative;width:100%;background-color: #eee;padding: 5px; margin:0 0 2px 0; border-radius:6px; -webkit-border-radius:6px; -moz-border-radius:6px; }
-li.sortable { }
+li.song, li.sortable {position:relative;width:100%;background-color: #eee;padding: 5px; margin:0px 0 2px 0; border-radius:6px; -webkit-border-radius:6px; -moz-border-radius:6px; }
+
 li.song { border-bottom: 1px solid #ccc; }
 li.song:hover { background: #dcdcdc; }
 li.song .name { float; left; }
-li.song .info { float: right; margin-top: -1em;}
+li.song .info { float: right;}
 li.song .info strong { font-weight: 400; color: #808080; }
 
 #footer { float:left; width:90%;font-size: 1em; padding: 1em 0 0 0; text-align: right; }
 
 .admin_area { width:930px; margin:0 auto; padding:0;}
-.graybox { background-color: #eee;padding: 5px; margin:0 0 2px 0; border-radius:6px; -webkit-border-radius:6px; -moz-border-radius:6px;}
+.graybox { background-color: #eee;padding: 5px; margin:0 0 2px 0; border-radius:6px; -webkit-border-radius:6px; -moz-border-radius:6px;text-align:center;}
+.graybox span div {display:block;height:25px;width:100%;font-size:.9em; color: ##3f0000;text-align:left;overflow:hidden;}
+.graybox div span{display:inline;font-size:.9em; color: #3f0000;}
+.graybox h4 {padding:0;margin:0; text-align:left;}
 .admin_left { margin: 0 10px 0 0; float:left; width: 250px;}
 .admin_list { margin: 0px 0 0 0; float:left; width: 650px;}
 .song h3 { display:block; width:425px; height:14px; overflow:hidden; padding:5px; margin:0px 0 5px 15px; line-height: 1em;}
