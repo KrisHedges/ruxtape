@@ -253,15 +253,16 @@ end
 
 module Ruxtape::Views
   def layout
-    xhtml_strict do
+    xhtml_transitional do
       head do
         title "Ruxtape => Punks jump up to get beat down."
         link(:rel => 'shortcut icon', :href => '/assets/images/favicon.ico')
-        
         link(:rel => 'stylesheet', :type => 'text/css',
              :href => '/assets/styles.css', :media => 'screen' )
         link(:rel => 'stylesheet', :type => 'text/css',
              :href => '/assets/page-player.css', :media => 'screen' )
+        link(:rel => 'stylesheet', :type => 'text/css',
+            :href => '/assets/inline-player.css', :media => 'screen' )     
         meta(:content => 'noindex, nofollow', :name => "robots")
         %w(jquery.js ui.core.js ui.sortable.js ruxtape.js).each do |lib|
           script(:type => 'text/javascript', :src => "/assets/#{lib}")
@@ -333,8 +334,6 @@ module Ruxtape::Views
   end
 
   def admin
-    link(:rel => 'stylesheet', :type => 'text/css',
-         :href => '/assets/inline-player.css', :media => 'screen' )
     script(:type => 'text/javascript', :src => '/assets/soundmanager/inline-player.js')
     div.content! do 
       p.login { text "You are authenticated as #{@state.identity}." }
@@ -386,7 +385,7 @@ module Ruxtape::Views
   def _song_admin(song)
     div.song do 
       div.info do 
-        h3 do a("#{song.artist} - #{song.title}", :href=> song.url_path, :class => 'sm2_link') end
+        h3 do a("#{song.artist} - #{song.title}", :href=> song.url_path, :class => 'sm2_link inline') end
         div.edit_song_controls do
           span.edit_song_button {"Edit Song"}
           form.delete({ :method => 'post', :action => R(DeleteSong, :signed => sign)}) do 
